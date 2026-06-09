@@ -2,7 +2,7 @@
 
 import argparse
 import time
-import requests
+import httpx
 
 from config import HEADERS, REQUEST_TIMEOUT, REQUEST_DELAY, DEFAULT_OUTPUT_FORMAT, DEFAULT_OUTPUT_FILE
 from parser import parse_html
@@ -12,18 +12,18 @@ from output import save_results, log_history, show_history
 def fetch_page(url):
     try:
         print("[*] Fetching: " + url)
-        response = requests.get(url, headers=HEADERS, timeout=REQUEST_TIMEOUT)
-        response.raise_for_status()
-        response.encoding = response.apparent_encoding
-        print("[+] Success - Status: " + str(response.status_code))
-        return response.text
-    except requests.exceptions.HTTPError as e:
+        with httpx.Client(http2=True, headers=HEADERS, timeout=REQUEST_TIMEOUT, follow_redirects=True, verify=False) as client:
+            response = client.get(url)
+            response.raise_for_status()
+            print("[+] Success - Status: " + str(response.status_code))
+            return response.text
+    except httpx.HTTPStatusError as e:
         print("[!] HTTP Error: " + str(e))
-    except requests.exceptions.ConnectionError:
+    except httpx.ConnectError:
         print("[!] Connection failed. Check the URL or your internet.")
-    except requests.exceptions.Timeout:
+    except httpx.TimeoutException:
         print("[!] Request timed out after " + str(REQUEST_TIMEOUT) + " seconds.")
-    except requests.exceptions.RequestException as e:
+    except Exception as e:
         print("[!] Unexpected error: " + str(e))
     return None
 
