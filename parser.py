@@ -13,20 +13,28 @@ def parse_html(html, tag=None, class_name=None, id_name=None, transactions=False
     if id_name:
         element = soup.find(id=id_name)
         if element:
-            results.append(element.get_text(strip=True))
+            text = element.get_text(strip=True)
+            if text:
+                results.append(text)
 
     elif class_name:
         elements = soup.find_all(tag or True, class_=class_name)
         for el in elements:
-            results.append(el.get_text(strip=True))
+            text = el.get_text(strip=True)
+            if text:
+                results.append(text)
 
     elif tag:
         elements = soup.find_all(tag)
         for el in elements:
-            results.append(el.get_text(strip=True))
+            text = el.get_text(strip=True)
+            if text:
+                results.append(text)
 
     else:
-        results.append(soup.get_text(strip=True))
+        text = soup.get_text(strip=True)
+        if text:
+            results.append(text)
 
     return results
 

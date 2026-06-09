@@ -14,6 +14,7 @@ def fetch_page(url):
         print("[*] Fetching: " + url)
         response = requests.get(url, headers=HEADERS, timeout=REQUEST_TIMEOUT)
         response.raise_for_status()
+        response.encoding = response.apparent_encoding
         print("[+] Success - Status: " + str(response.status_code))
         return response.text
     except requests.exceptions.HTTPError as e:
